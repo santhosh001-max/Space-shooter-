@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+<title>Galaxy Runner - 2D Space Shooter</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div id="game-container">
+
+    <!-- ============ HOME SCREEN ============ -->
+    <div id="home-screen" class="screen">
+      <div class="top-right-buttons">
+        <button id="btn-settings-home" class="icon-btn" title="Settings">⚙️</button>
+        <button id="btn-shop-home" class="icon-btn" title="Shipyard">🛠️</button>
+      </div>
+      <h1 class="title">GALAXY RUNNER</h1>
+      <p class="subtitle">Dodge rocks &amp; aliens, collect coins, survive!</p>
+
+      <div class="mode-select">
+        <div class="mode-card" id="mode-levels">
+          <div class="mode-img">🗺️</div>
+          <h2>LEVELS</h2>
+          <p>Complete missions,<br/>earn Rupees</p>
+        </div>
+        <div class="mode-card" id="mode-infinity">
+          <div class="mode-img">♾️</div>
+          <h2>INFINITY</h2>
+          <p>Choose difficulty,<br/>1 or 2 players</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ LEVEL SELECT ============ -->
+    <div id="level-select" class="screen hidden">
+      <h2>SELECT LEVEL</h2>
+      <div id="level-list"></div>
+      <button class="back-btn" id="btn-level-select-back">◀ BACK</button>
+    </div>
+
+    <!-- ============ IN-GAME UI ============ -->
+    <div id="game-ui" class="hidden">
+
+      <!-- Levels mode: path bar (start -> goal) -->
+      <div id="path-bar">
+        <div id="path-track">
+          <div id="path-fill"></div>
+          <div id="path-ship-marker">🚀</div>
+        </div>
+        <div id="path-labels">
+          <span>START</span>
+          <span id="level-label">Level 1</span>
+          <span>GOAL 🏁</span>
+        </div>
+      </div>
+
+      <!-- Infinity mode: score display -->
+      <div id="score-bar" class="hidden">
+        <div id="score-current">SCORE: 0</div>
+        <div id="score-best">BEST: 0</div>
+      </div>
+
+      <!-- HUD: hearts, shield, coins -->
+      <div id="hud">
+        <div id="hull-bars">
+          <div id="hull-bar" title="Player 1 hull integrity">
+            <div id="hull-fill"></div>
+            <span id="hull-label">P1 100%</span>
+          </div>
+          <div id="hull-bar-p2" class="hidden" title="Player 2 hull integrity">
+            <div id="hull-fill-p2"></div>
+            <span id="hull-label-p2">P2 100%</span>
+          </div>
+        </div>
+        <div id="shield-indicator"></div>
+        <div id="coins">💎 <span id="coin-count">0</span></div>
+        <button id="btn-pause-ingame" class="icon-btn small" title="Pause (Space)">⏸</button>
+      </div>
+
+      <!-- Active power-up timers -->
+      <div id="active-powers"></div>
+
+      <canvas id="game-canvas"></canvas>
+
+      <!-- Movement controls: Player 1 bottom-right, Player 2 bottom-left (2P mode only) -->
+      <div id="dpad-p2" class="hidden">
+        <button id="btn-up-p2" class="ctrl-btn">▲</button>
+        <div id="dpad-mid-p2" class="dpad-mid">
+          <button id="btn-left-p2" class="ctrl-btn">◀</button>
+          <button id="btn-down-p2" class="ctrl-btn">▼</button>
+          <button id="btn-right-p2" class="ctrl-btn">▶</button>
+        </div>
+      </div>
+      <div id="dpad">
+        <button id="btn-up" class="ctrl-btn">▲</button>
+        <div id="dpad-mid" class="dpad-mid">
+          <button id="btn-left" class="ctrl-btn">◀</button>
+          <button id="btn-down" class="ctrl-btn">▼</button>
+          <button id="btn-right" class="ctrl-btn">▶</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ INFINITY SETUP WIZARD (difficulty -> players -> ship) ============ -->
+    <div id="overlay-infinity-setup" class="overlay hidden">
+      <div id="infinity-setup-content"></div>
+    </div>
+
+    <!-- ============ PAUSE OVERLAY ============ -->
+    <div id="overlay-pause" class="overlay hidden">
+      <h1>⏸ PAUSED</h1>
+      <div class="pause-row">
+        <button id="btn-pause-home" class="round-btn">🏠</button>
+        <button id="btn-pause-resume" class="round-btn big">▶</button>
+        <button id="btn-pause-restart" class="round-btn">🔁</button>
+      </div>
+      <p class="hint">Press SPACE to resume</p>
+    </div>
+
+    <!-- ============ WIN / LOSE ============ -->
+    <div id="overlay-win" class="overlay hidden">
+      <h1>🏆 LEVEL COMPLETE!</h1>
+      <p id="win-summary"></p>
+      <button id="btn-next-level">NEXT LEVEL ▶</button>
+      <button id="btn-win-shop">🛒 SHOP</button>
+      <button id="btn-win-home">🏠 HOME</button>
+    </div>
+
+    <div id="overlay-lose" class="overlay hidden">
+      <h1 id="lose-title">💥 SHIP DESTROYED</h1>
+      <p id="lose-summary"></p>
+      <button id="btn-retry">🔁 RETRY</button>
+      <button id="btn-lose-home">🏠 HOME</button>
+    </div>
+
+    <!-- ============ SETTINGS ============ -->
+    <div id="overlay-settings" class="overlay hidden">
+      <h1>⚙️ SETTINGS</h1>
+      <div class="settings-row">
+        <label>Music</label>
+        <label class="switch"><input type="checkbox" id="toggle-music"><span class="slider"></span></label>
+      </div>
+      <div class="settings-row">
+        <label>Sound Effects</label>
+        <label class="switch"><input type="checkbox" id="toggle-sound"><span class="slider"></span></label>
+      </div>
+      <div class="settings-row">
+        <label>Volume</label>
+        <input type="range" id="volume-slider" min="0" max="100" value="70" />
+      </div>
+      <button id="btn-close-settings">✖ CLOSE</button>
+    </div>
+
+    <!-- ============ SHIPYARD (upgrade Blue/Purple ships with Rupees) ============ -->
+    <div id="overlay-shop" class="overlay hidden">
+      <h1>🛠️ SHIPYARD</h1>
+      <p class="rupee-total">💎 <span id="shipyard-rupees">0</span> Rupees</p>
+      <div id="shop-list"></div>
+      <button id="btn-close-shop">✖ CLOSE</button>
+    </div>
+
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
