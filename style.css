@@ -72,6 +72,13 @@ html, body {
   border: none;
   padding: 0;
   cursor: pointer;
+  z-index: 10;
+}
+.frame-hotspot:hover {
+  background: rgba(0, 229, 255, 0.15);
+}
+.frame-hotspot:active {
+  background: rgba(0, 229, 255, 0.3);
 }
 .frame-hotspot.octagon-card {
   clip-path: polygon(10% 0%, 90% 0%, 100% 7.17%, 100% 92.83%, 90% 100%, 10% 100%, 0% 92.83%, 0% 7.17%);
