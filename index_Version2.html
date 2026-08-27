@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+<title>Galaxy Runner - 2D Space Shooter</title>
+<link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="ui-fix.css" />
+</head>
+<body>
+
+  <div id="game-container">
+
+    <!-- ============ LOADING SCREEN (shown at boot, and again before a run starts) ============ -->
+    <div id="loading-screen">
+      <div class="frame-photo-wrap">
+        <img src="assets/ui/frame_loading.jpg" alt="Loading" />
+        <div class="loading-track" style="left:19.87%;top:78.9%;width:51.1%;height:5.27%;">
+          <div id="loading-fill"></div>
+        </div>
+        <div id="loading-percent" style="left:70%;top:78.9%;width:15%;height:5.27%;">0%</div>
+      </div>
+    </div>
+
+    <button id="btn-fullscreen" class="icon-btn small" title="Fullscreen (F)">⛶</button>
+
+    <!-- ============ TITLE SCREEN (real entry point - full art, exact hotspots) ============ -->
+    <div id="title-screen" class="screen">
+      <div class="title-frame">
+        <img src="assets/ui/title_screen.jpg" alt="Space Shooter" class="title-bg" />
+        <button id="hotspot-settings" class="title-hotspot" style="left:79.8%;top:0%;width:9.4%;height:15.1%;" title="Settings"></button>
+        <button id="hotspot-upgrade" class="title-hotspot" style="left:90.5%;top:0%;width:9.4%;height:15.1%;" title="Upgrade"></button>
+        <button id="hotspot-daily-reward" class="title-hotspot" style="left:1.0%;top:34.7%;width:15.9%;height:6.3%;" title="Daily Reward"></button>
+        <button id="hotspot-achievements" class="title-hotspot" style="left:1.0%;top:42.0%;width:15.9%;height:5.9%;" title="Achievements"></button>
+        <button id="hotspot-daily-missions" class="title-hotspot" style="left:1.0%;top:49.3%;width:15.9%;height:6.3%;" title="Daily Missions"></button>
+        <button id="hotspot-free-rewards" class="title-hotspot" style="left:1.0%;top:59.1%;width:15.9%;height:5.9%;" title="Free Rewards"></button>
+        <button id="hotspot-special-offer" class="title-hotspot" style="left:77.8%;top:56.6%;width:19.9%;height:21.5%;" title="Special Offer"></button>
+        <button id="hotspot-play" class="title-hotspot" style="left:27.7%;top:78.1%;width:42.3%;height:12.2%;" title="Play"></button>
+        <button id="hotspot-ship" class="title-hotspot" style="left:77.8%;top:83.0%;width:19.9%;height:11.7%;" title="Ship"></button>
+      </div>
+    </div>
+
+    <!-- ============ HOME SCREEN (mode select) ============ -->
+    <div id="home-screen" class="screen hidden">
+      <div class="top-right-buttons">
+        <button id="btn-settings-home" class="icon-btn" title="Settings">⚙️</button>
+        <button id="btn-shop-home" class="icon-btn" title="Shipyard">🛠️</button>
+      </div>
+
+      <div class="frame-photo-wrap">
+        <img src="assets/ui/frame_mode.jpg" alt="Choose your mode: Levels or Infinity" />
+        <button id="mode-levels" class="frame-hotspot" style="left:6.51%;top:13.18%;width:36.46%;height:78.13%;" title="Levels"></button>
+        <button id="mode-infinity" class="frame-hotspot" style="left:46.55%;top:13.18%;width:36.46%;height:78.13%;" title="Infinity"></button>
+      </div>
+    </div>
+
+    <!-- ============ LEVEL SELECT ============ -->
+    <div id="level-select" class="screen hidden">
+      <div class="top-right-buttons">
+        <button id="btn-settings-levels" class="icon-btn" title="Settings">⚙️</button>
+        <button id="btn-shop-levels" class="icon-btn" title="Shipyard">🛠️</button>
+      </div>
+      <h2>SELECT LEVEL</h2>
+      <div id="level-list"></div>
+      <button class="back-btn" id="btn-level-select-back">◀ BACK</button>
+    </div>
+
+    <!-- ============ IN-GAME UI ============ -->
+    <div id="game-ui" class="hidden">
+
+      <!-- Levels mode: path bar (start -> goal) -->
+      <div id="path-bar">
+        <div id="path-track">
+          <div id="path-fill"></div>
+          <div id="path-ship-marker">🚀</div>
+        </div>
+        <div id="path-labels">
+          <span>START</span>
+          <span id="level-label">Level 1</span>
+          <span>GOAL 🏁</span>
+        </div>
+      </div>
+
+      <!-- Infinity mode: score display -->
+      <div id="score-bar" class="hidden">
+        <div id="score-current">SCORE: 0</div>
+        <div id="score-best">BEST: 0</div>
+      </div>
+
+      <!-- HUD: hearts, shield, coins -->
+      <div id="hud">
+        <div id="hull-bars">
+          <div id="hull-bar" title="Player 1 hull integrity">
+            <div id="hull-fill"></div>
+            <span id="hull-label">P1 100%</span>
+          </div>
+          <div id="hull-bar-p2" class="hidden" title="Player 2 hull integrity">
+            <div id="hull-fill-p2"></div>
+            <span id="hull-label-p2">P2 100%</span>
+          </div>
+        </div>
+        <div id="shield-indicator"></div>
+        <div id="coins">💎 <span id="coin-count">0</span></div>
+        <button id="btn-pause-ingame" class="icon-btn small" title="Pause (Space)">⏸</button>
+      </div>
+
+      <!-- Active power-up timers -->
+      <div id="active-powers"></div>
+
+      <canvas id="game-canvas"></canvas>
+
+      <!-- Movement controls: Player 1 bottom-right, Player 2 bottom-left (2P mode only) -->
+      <div id="dpad-p2" class="hidden">
+        <button id="btn-up-p2" class="ctrl-btn">▲</button>
+        <div id="dpad-mid-p2" class="dpad-mid">
+          <button id="btn-left-p2" class="ctrl-btn">◀</button>
+          <button id="btn-down-p2" class="ctrl-btn">▼</button>
+          <button id="btn-right-p2" class="ctrl-btn">▶</button>
+        </div>
+      </div>
+      <div id="dpad">
+        <button id="btn-up" class="ctrl-btn">▲</button>
+        <div id="dpad-mid" class="dpad-mid">
+          <button id="btn-left" class="ctrl-btn">◀</button>
+          <button id="btn-down" class="ctrl-btn">▼</button>
+          <button id="btn-right" class="ctrl-btn">▶</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ INFINITY SETUP WIZARD (difficulty -> players -> ship) ============ -->
+    <div id="overlay-infinity-setup" class="overlay hidden">
+      <div id="infinity-setup-content"></div>
+    </div>
+
+    <!-- ============ PAUSE OVERLAY ============ -->
+    <div id="overlay-pause" class="overlay hidden">
+      <div class="frame-photo-wrap">
+        <img src="assets/ui/frame_pause.jpg" alt="Paused" />
+        <button id="btn-pause-back" class="frame-hotspot" style="left:3.91%;top:6.35%;width:13.67%;height:5.86%;" title="Back"></button>
+        <button id="btn-pause-home" class="frame-hotspot" style="left:10.74%;top:29.30%;width:21.48%;height:29.30%;" title="Home"></button>
+        <button id="btn-pause-resume" class="frame-hotspot" style="left:34.18%;top:29.30%;width:20.51%;height:29.30%;" title="Resume"></button>
+        <button id="btn-pause-restart" class="frame-hotspot" style="left:55.99%;top:29.30%;width:21.48%;height:29.30%;" title="Restart"></button>
+      </div>
+    </div>
+
+    <!-- ============ WIN / LOSE ============ -->
+    <div id="overlay-win" class="overlay hidden">
+      <h1>🏆 LEVEL COMPLETE!</h1>
+      <p id="win-summary"></p>
+      <button id="btn-next-level">NEXT LEVEL ▶</button>
+      <button id="btn-win-shop">🛒 SHOP</button>
+      <button id="btn-win-home">🏠 HOME</button>
+    </div>
+
+    <div id="overlay-lose" class="overlay hidden">
+      <h1 id="lose-title">💥 SHIP DESTROYED</h1>
+      <p id="lose-summary"></p>
+      <button id="btn-retry">🔁 RETRY</button>
+      <button id="btn-lose-home">🏠 HOME</button>
+    </div>
+
+    <!-- ============ SETTINGS ============ -->
+    <div id="overlay-settings" class="overlay hidden">
+      <h1>⚙️ SETTINGS</h1>
+      <div class="settings-row">
+        <label>Music</label>
+        <label class="switch"><input type="checkbox" id="toggle-music"><span class="slider"></span></label>
+      </div>
+      <div class="settings-row">
+        <label>Sound Effects</label>
+        <label class="switch"><input type="checkbox" id="toggle-sound"><span class="slider"></span></label>
+      </div>
+      <div class="settings-row">
+        <label>Volume</label>
+        <input type="range" id="volume-slider" min="0" max="100" value="70" />
+      </div>
+      <button id="btn-close-settings">✖ CLOSE</button>
+    </div>
+
+    <!-- ============ SHIPYARD (upgrade Blue/Purple ships with Rupees) ============ -->
+    <div id="overlay-shop" class="overlay hidden">
+      <h1>🛠️ SHIPYARD</h1>
+      <p class="rupee-total">💎 <span id="shipyard-rupees">0</span> Rupees</p>
+      <div id="shop-list"></div>
+      <button id="btn-close-shop">✖ CLOSE</button>
+    </div>
+
+    <div id="toast" class="hidden"></div>
+
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+  <script src="game.js"></script>
+  <script src="hotspot-fix.js" defer></script>
+</body>
+</html>

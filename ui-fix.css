@@ -1,0 +1,95 @@
+/* ui-fix.css
+   Overrides to ensure the interactive UI sits above the canvas and buttons are visible/clickable.
+   Drop this file into the repo and include it after the main stylesheet to override problematic rules.
+*/
+
+/* Ensure the main container is a positioned stacking context */
+#game-container {
+  position: relative !important;
+  z-index: 0; /* base */
+}
+
+/* Force canvas to the base layer so UI can overlay reliably */
+#game-canvas {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 0 !important;
+  pointer-events: auto !important; /* allow interactions only where intended */
+}
+
+/* Bring important UI elements above the canvas */
+.top-right-buttons,
+#hud,
+#path-bar,
+#score-bar,
+#toast,
+#dpad,
+#dpad-p2,
+.overlay,
+#loading-screen,
+#title-screen,
+#home-screen,
+#level-select,
+#game-ui {
+  z-index: 1000 !important;
+  pointer-events: auto !important;
+}
+
+/* Make icon buttons clearly visible and clickable */
+.icon-btn,
+.ctrl-btn,
+.frame-hotspot,
+.title-hotspot,
+#btn-fullscreen,
+#btn-pause-ingame,
+.back-btn,
+#btn-retry,
+#btn-lose-home,
+#btn-next-level,
+#btn-win-shop,
+#btn-win-home {
+  pointer-events: auto !important;
+  z-index: 1010 !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Ensure hotspots are not collapsed by unexpected width/height rules */
+.frame-hotspot, .title-hotspot {
+  min-width: 8px !important;
+  min-height: 8px !important;
+  background: transparent !important;
+}
+
+/* If an ancestor created a new stacking context (transform, opacity < 1), ensure UI still floats above */
+#game-container > * {
+  z-index: unset; /* let individual rules above apply */
+}
+
+/* Provide a fallback visible style for small circular control buttons */
+.icon-btn, .ctrl-btn {
+  background: rgba(255,255,255,0.06) !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  color: #e6f1ff !important;
+}
+
+/* Ensure dpad is visible on small screens and not clipped */
+#dpad, #dpad-p2 {
+  bottom: 18px !important;
+  left: 16px !important;
+  right: auto !important;
+  z-index: 1010 !important;
+}
+
+/* Make sure any element accidentally hidden via opacity or visibility is visible for UI controls */
+.icon-btn[style*="opacity: 0"], .ctrl-btn[style*="opacity: 0"] {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Debug helpers - uncomment during development only */
+/*
+#game-container { outline: 1px dashed rgba(255,255,255,0.04); }
+#hud { outline: 1px dashed rgba(255,0,0,0.06); }
+*/
