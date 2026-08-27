@@ -1,4 +1,12 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
+button {
+  -webkit-tap-highlight-color: transparent;
+  tap-highlight-color: transparent;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+button:focus { outline: none; }
 
 html, body {
   height: 100%;
@@ -20,6 +28,108 @@ html, body {
 
 .hidden { display: none !important; }
 
+/* ---------- TITLE SCREEN (real entry point - full uncropped art) ---------- */
+#title-screen {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: #000;
+}
+.title-frame {
+  position: relative;
+  /* Exact 1536:1024 (3:2) aspect ratio, computed explicitly via min() instead of
+     the CSS aspect-ratio property - on wide/short viewports (laptops) aspect-ratio
+     combined with width:100% inside a flex container does not reliably respect
+     max-height across browsers, which let the frame grow taller than the screen
+     and pushed the PLAY button off the bottom edge. min() has no such ambiguity:
+     it always picks whichever dimension the viewport actually limits. */
+  width: min(100vw, 150vh);
+  height: min(100vh, 66.667vw);
+  margin: auto;
+}
+.title-bg { display: block; width: 100%; height: 100%; object-fit: fill; }
+.title-hotspot {
+  position: absolute;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* ---------- Reusable full-frame + hotspot pattern for overlays ----------
+   Same technique as the title screen (exact aspect ratio via min(), no crop,
+   no distortion) but sized to fit inside a padded overlay rather than the
+   full viewport. */
+.frame-photo-wrap {
+  position: relative;
+  width: min(94vw, 141vh);
+  height: min(94vh, 62.667vw);
+  margin: auto;
+}
+.frame-photo-wrap img { display: block; width: 100%; height: 100%; object-fit: fill; }
+.frame-hotspot {
+  position: absolute;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.frame-hotspot.octagon-card {
+  clip-path: polygon(10% 0%, 90% 0%, 100% 7.17%, 100% 92.83%, 90% 100%, 10% 100%, 0% 92.83%, 0% 7.17%);
+}
+
+/* ---------- Loading screen (boot + before a run starts) ---------- */
+#loading-screen {
+  position: absolute; inset: 0;
+  z-index: 1000; /* above absolutely everything, including the fullscreen button */
+  display: flex; align-items: center; justify-content: center;
+  background: #000;
+}
+#loading-screen.hidden { display: none; }
+.loading-track {
+  position: absolute;
+  overflow: hidden;
+  border-radius: 6px;
+  background: rgba(10,20,40,0.55);
+  border: 1px solid rgba(0,229,255,0.55);
+  box-shadow: 0 0 10px rgba(0,229,255,0.25), inset 0 0 6px rgba(0,0,0,0.6);
+}
+#loading-fill {
+  height: 100%; width: 0%;
+  background: repeating-linear-gradient(
+    -35deg,
+    #0091ea 0, #0091ea 8px,
+    #00c3ff 8px, #00c3ff 16px
+  );
+  transition: width 0.15s linear;
+  box-shadow: 0 0 10px rgba(0,229,255,0.9);
+}
+#loading-percent {
+  position: absolute;
+  display: flex; align-items: center; justify-content: center;
+  color: #bdf1ff; font-weight: bold; letter-spacing: 1px;
+  font-size: clamp(12px, 2.2vw, 24px);
+  text-shadow: 0 0 6px rgba(0,229,255,0.9);
+}
+
+/* ---------- Toast (honest feedback for not-yet-built features) ---------- */
+#toast {
+  position: absolute;
+  top: 46%; left: 50%;
+  transform: translate(-50%,-50%);
+  z-index: 100;
+  background: rgba(5,6,15,0.92);
+  border: 1px solid rgba(255,255,255,0.25);
+  padding: 14px 22px;
+  border-radius: 12px;
+  font-size: 14px;
+  text-align: center;
+  max-width: 260px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+#toast.show { opacity: 1; }
+
 /* ---------- generic top-right icon buttons ---------- */
 .top-right-buttons {
   position: absolute;
@@ -36,6 +146,11 @@ html, body {
   color: #e6f1ff;
   font-size: 20px;
   cursor: pointer;
+}
+#btn-fullscreen {
+  position: absolute;
+  top: 10px; left: 10px;
+  z-index: 500; /* always above every screen/overlay */
 }
 .icon-btn.small { width: 34px; height: 34px; font-size: 15px; }
 .icon-btn:active { background: rgba(0,229,255,0.35); }
@@ -55,27 +170,28 @@ html, body {
 
 .mode-select {
   display: flex;
-  gap: 22px;
+  gap: 16px;
   justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
 }
 .mode-card {
-  width: 150px; height: 210px;
-  border-radius: 18px;
-  border: 2px solid rgba(255,255,255,0.18);
-  background: linear-gradient(160deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 10px;
+  border: none;
+  background: none;
+  padding: 0;
   cursor: pointer;
-  transition: transform 0.15s ease, border-color 0.15s ease;
+  border-radius: 18px;
+  transition: transform 0.15s ease, filter 0.15s ease;
+  filter: drop-shadow(0 6px 18px rgba(0,0,0,0.5));
+}
+.mode-card img {
+  display: block;
+  width: 150px;
+  height: auto;
+  border-radius: 14px;
 }
 .mode-card:active { transform: scale(0.96); }
-#mode-levels { border-color: #00e5ff; box-shadow: 0 0 24px rgba(0,229,255,0.25); }
-#mode-infinity { border-color: #ff9100; box-shadow: 0 0 24px rgba(255,145,0,0.25); }
-.mode-img { font-size: 46px; }
-.mode-card h2 { font-size: 16px; letter-spacing: 2px; }
-.mode-card p { font-size: 11px; opacity: 0.75; line-height: 1.4; }
+.mode-card:hover { filter: drop-shadow(0 6px 24px rgba(255,255,255,0.25)); }
 
 /* ---------- LEVEL SELECT ---------- */
 #level-select {
@@ -88,24 +204,25 @@ html, body {
   padding: 20px;
 }
 #level-list {
-  display: flex; flex-direction: column; gap: 10px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
   width: 100%; max-width: 340px;
-  max-height: 55vh; overflow-y: auto;
+  max-height: 62vh; overflow-y: auto;
 }
-.level-row {
-  display: flex; align-items: center; justify-content: space-between;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 10px;
-  padding: 12px 16px;
-  font-size: 14px;
+.planet-card {
+  position: relative;
+  border: none; background: none; padding: 0;
+  border-radius: 12px; overflow: hidden;
+  cursor: pointer;
 }
-.level-row.locked { opacity: 0.45; }
-.level-row button {
-  padding: 6px 14px; border: none; border-radius: 8px;
-  background: linear-gradient(180deg,#00e5ff,#0091ea); color:#001018; font-weight:bold;
+.planet-card img { display: block; width: 100%; height: auto; border-radius: 12px; }
+.planet-card:active { transform: scale(0.96); }
+.planet-card.locked { opacity: 0.4; cursor: not-allowed; }
+.planet-lock {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px;
+  background: rgba(0,0,0,0.35);
 }
-.level-row button:disabled { background:#333; color:#888; }
 .back-btn {
   padding: 10px 22px; border: none; border-radius: 10px;
   background: rgba(255,255,255,0.12); color: #e6f1ff;
@@ -241,16 +358,17 @@ html, body {
 .overlay button:active { transform: scale(0.96); }
 
 /* pause row */
-.pause-row { display: flex; gap: 18px; align-items: center; }
-.round-btn {
-  width: 56px; height: 56px; min-width: 0 !important;
-  border-radius: 50%; font-size: 20px;
-  background: rgba(255,255,255,0.12) !important; color: #e6f1ff !important;
+.pause-row { display: flex; gap: 14px; align-items: center; }
+.art-btn {
+  border: none; background: none; padding: 0; min-width: 0 !important;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
 }
-.round-btn.big {
-  width: 76px; height: 76px; font-size: 28px;
-  background: linear-gradient(180deg,#00e5ff,#0091ea) !important; color: #001018 !important;
-}
+.art-btn img { display: block; width: 96px; height: auto; }
+.art-btn.big img { width: 118px; }
+.art-btn.start-btn img { width: 220px; }
+.art-btn:active { transform: scale(0.94); }
+.art-btn:hover { filter: drop-shadow(0 0 10px rgba(255,255,255,0.35)); }
 .hint { font-size: 12px; opacity: 0.6; }
 
 /* settings */
@@ -333,12 +451,26 @@ html, body {
 .ctrl-btn:active { background: rgba(0,229,255,0.35); }
 
 /* ---------- Infinity setup wizard (difficulty -> players -> ship) ---------- */
+#overlay-infinity-setup { background: #000; }
 #infinity-setup-content {
   display: flex; flex-direction: column; align-items: center; gap: 16px;
   width: 100%; max-width: 360px;
+  border: 2px solid #00e5ff;
+  border-radius: 18px;
+  padding: 26px 16px;
+  background: rgba(0,12,24,0.5);
+  box-shadow: 0 0 28px rgba(0,229,255,0.35), inset 0 0 20px rgba(0,229,255,0.08);
 }
 .wizard-title { font-size: 20px; letter-spacing: 2px; }
-.wizard-options { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+#infinity-setup-content.confirm-panel {
+  border: 3px solid transparent;
+  border-image: linear-gradient(135deg, #00e5ff, #a259ff) 1;
+  box-shadow: 0 0 28px rgba(162,89,255,0.35), inset 0 0 20px rgba(0,229,255,0.08);
+}
+#infinity-setup-content.photo-step {
+  border: none; background: none; box-shadow: none; padding: 0; max-width: none;
+}
+.wizard-options { display: flex; gap: 10px; flex-wrap: nowrap; justify-content: center; width: 100%; }
 .wizard-card {
   width: 100px; min-height: 90px;
   border-radius: 14px;
@@ -350,8 +482,24 @@ html, body {
 .wizard-card:active { transform: scale(0.95); }
 .wizard-card .w-icon { font-size: 28px; }
 .wizard-card span { font-size: 12px; font-weight: bold; letter-spacing: 1px; }
-.wizard-card.ship-card-pick { width: 130px; }
+.wizard-card.ship-card-pick { width: 130px; position: relative; }
 .wizard-card.ship-card-pick img { width: 60px; height: auto; }
+.ship-pick-badge {
+  position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+  background: linear-gradient(180deg,#ffd600,#ff9100);
+  color: #201400; font-size: 11px; font-weight: bold;
+  padding: 3px 10px; border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+.wizard-card-art {
+  width: auto; height: auto; min-height: 0;
+  border: none; background: none; padding: 0;
+  border-radius: 12px;
+}
+.wizard-card-art img { display: block; width: 28vw; max-width: 108px; min-width: 76px; height: auto; border-radius: 10px; }
+.wizard-card-art:hover { filter: drop-shadow(0 0 10px rgba(255,255,255,0.3)); }
+.ship-full-card { position: relative; }
+.ship-full-card img { width: 42vw; max-width: 160px; min-width: 120px; }
 .wizard-back { margin-top: 4px; background: rgba(255,255,255,0.12) !important; }
 .wizard-summary { font-size: 13px; opacity: 0.85; text-align: center; }
 

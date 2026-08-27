@@ -78,8 +78,11 @@ INSERT INTO spaceships (name, cost, speed, power_capacity, fire_rate, shield, un
 ('Phoenix X',     2000, 8, 5, 150, 4, 4, '#ffd600');
 
 INSERT INTO levels (level_number, name, distance, alien_count, obstacle_density, reward_coins, unlock_ship_id) VALUES
-(1, 'Asteroid Belt',   3000, 5,  0.20, 150, 2),
-(2, 'Alien Outpost',   4000, 8,  0.30, 220, 3),
-(3, 'Meteor Storm',    5000, 10, 0.40, 300, 4),
-(4, 'Deep Space Rift', 6000, 14, 0.50, 400, 5),
-(5, 'Mothership Gate', 8000, 20, 0.60, 600, NULL);
+(1, 'The Moon',   2500, 4,  0.18, 120, NULL),
+(2, 'Mars',       3200, 6,  0.24, 170, 2),
+(3, 'Venus',      4000, 8,  0.30, 220, NULL),
+(4, 'Mercury',    4800, 10, 0.36, 280, 3),
+(5, 'Jupiter',    5600, 12, 0.42, 340, NULL),
+(6, 'Saturn',     6400, 15, 0.48, 400, 4),
+(7, 'Uranus',     7200, 18, 0.54, 470, NULL),
+(8, 'Neptune',    8000, 22, 0.60, 550, 5);

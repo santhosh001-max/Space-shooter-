@@ -11,6 +11,22 @@ A single-player or local 2-player 2D space shooter with two modes:
 Crash into a rock/alien/bullet and you lose a heart (after your ship's
 armor is used up first, if its level has any). Run out of hearts = game over.
 
+## Home screen mode cards
+The Levels/Infinity buttons on the home screen are now full illustrated
+cards (`assets/ui/card_levels.png`, `assets/ui/card_infinity.png`) instead
+of the earlier emoji + text tiles.
+
+## Illustrated buttons (pause, difficulty, player count)
+Several more controls now use full art instead of emoji/text:
+- **Pause overlay**: Home / Resume / Restart are illustrated button plaques
+  (`btn_home.png`, `btn_resume.png`, `btn_restart.png`)
+- **Infinity wizard — difficulty step**: Easy / Normal / Hard are
+  illustrated cards (`card_easy.png`, `card_normal.png`, `card_hard.png`)
+- **Infinity wizard — player count step**: 1 Player / 2 Players are
+  illustrated cards (`card_solo.png`, `card_two.png`)
+
+All click behavior is unchanged — only the visuals were swapped in.
+
 ## Obstacles: crystal ruins (multi-hit, bigger, slower)
 Rocks were replaced with 6 crystal-obstacle sprites (blue/purple elongated
 ruin blocks, blue/purple obelisks, a blue crystal spire, an icy spire).
